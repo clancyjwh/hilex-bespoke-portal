@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Projects | Hilex</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .dashboard-layout {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: rgba(10, 15, 30, 0.4);
+            border-right: 1px solid var(--border-color);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius-md);
+            transition: var(--transition-smooth);
+            font-weight: 500;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.1);
+        }
+
+        .project-card {
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 229, 255, 0.05);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .status-active {
+            background: rgba(0, 255, 178, 0.1);
+            color: var(--accent-green);
+        }
+
+        .status-completed {
+            background: rgba(0, 229, 255, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        .score-box {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--radius-md);
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            width: 100%;
+            max-width: 600px;
+            margin: 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-layout">
+        <aside class="sidebar">
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                <svg width="30" height="30" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 25L15 15L22 22L35 9" stroke="var(--accent-cyan)" stroke-width="4" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span style="font-size: 1.5rem; font-weight: 800; letter-spacing: 1px;">HILEX</span>
+            </div>
+
+            <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="#" class="nav-link active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    My Projects
+                </a>
+                <a href="#" class="nav-link" id="open-request-modal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 5v14M5 12h14" />
+                    </svg>
+                    New Request
+                </a>
+                <a href="#" class="nav-link">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Profile
+                </a>
+            </nav>
+
+            <div style="margin-top: auto;">
+                <button class="nav-link" style="border: none; background: none; cursor: pointer; width: 100%;"
+                    onclick="window.handleLogout()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                    </svg>
+                    Logout
+                </button>
+            </div>
+        </aside>
+
+        <main style="padding: 3rem; overflow-y: auto;">
+            <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Bespoke Projects</h1>
+                    <p style="color: var(--text-secondary);">Access your tailored empirical analysis and insights</p>
+                </div>
+                <button class="primary-button" onclick="document.getElementById('request-modal').style.display='flex'">
+                    Request Project
+                </button>
+            </header>
+
+            <div id="projects-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Projects will be loaded here -->
+                <div class="glass-panel" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                    Loading your bespoke analysis...
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Project Request Modal -->
+    <div id="request-modal" class="modal">
+        <div class="glass-panel modal-content" style="padding: 2.5rem;">
+            <header style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center;">
+                <h2 class="text-gradient">New Project Request</h2>
+                <button style="background: none; border: none; color: var(--text-secondary); cursor: pointer;"
+                    onclick="document.getElementById('request-modal').style.display='none'">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </header>
+
+            <form id="request-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Project Type</label>
+                    <select id="request-type" required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;">
+                        <option value="financial">Financial Analysis</option>
+                        <option value="housing">Housing Market Optimization</option>
+                        <option value="operational">Operational Patterns</option>
+                        <option value="custom">Custom Research</option>
+                    </select>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Data Type</label>
+                    <input type="text" id="request-data" placeholder="e.g. historical price logs, CSV, API endpoint"
+                        required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white;">
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Ideal Outcome</label>
+                    <textarea id="request-outcome" rows="3"
+                        placeholder="What specific optimizations are you looking for?" required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white;"></textarea>
+                </div>
+                <button type="submit" class="primary-button" style="justify-content: center; margin-top: 1rem;">
+                    Submit Request
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../../js/auth.js"></script>
+    <script>
+        // Project loading logic
+        async function loadProjects() {
+            const list = document.getElementById('projects-list');
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) return;
+
+                const { data: projects, error } = await supabase
+                    .from('bespoke_projects')
+                    .select('*')
+                    .eq('client_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                if (!projects || projects.length === 0) {
+                    list.innerHTML = `
+                        <div class="glass-panel" style="padding: 4rem; text-align: center;">
+                            <p style="color: var(--text-secondary); margin-bottom: 2rem;">No bespoke projects found. Start by requesting your first optimization.</p>
+                            <button class="glass-button" onclick="document.getElementById('request-modal').style.display='flex'">New Analysis Request</button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                list.innerHTML = projects.map(p => `
+                    <div class="glass-panel project-card" onclick="window.location.href='view.html?id=${p.id}'">
+                        <div style="display: flex; gap: 1.5rem; align-items: center;">
+                            <div class="score-box" style="background: ${getScoreColor(p.overarching_score)}; color: var(--bg-dark);">
+                                ${p.overarching_score > 0 ? '+' : ''}${p.overarching_score}
+                            </div>
+                            <div>
+                                <h3 style="margin-bottom: 0.25rem;">${p.title}</h3>
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Created ${new Date(p.created_at).toLocaleDateString()}</span>
+                                </div>
+                            </div>
+                        </div>
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </div>
+                `).join('');
+
+            } catch (err) {
+                console.error('Error loading projects:', err);
+                list.innerHTML = `<div class="glass-panel" style="padding: 2rem; color: var(--accent-red);">Failed to load projects. Please refresh the page.</div>`;
+            }
+        }
+
+        function getScoreColor(score) {
+            if (score > 5) return 'var(--accent-green)';
+            if (score > 0) return 'var(--accent-cyan)';
+            if (score === 0) return '#FFFFFF';
+            if (score > -5) return 'var(--accent-yellow)';
+            return 'var(--accent-red)';
+        }
+
+        // Request form submission
+        document.getElementById('request-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = 'Submitting...';
+            btn.disabled = true;
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                const entry = {
+                    client_id: user.id,
+                    project_type: document.getElementById('request-type').value,
+                    data_type: document.getElementById('request-data').value,
+                    ideal_outcome: document.getElementById('request-outcome').value,
+                    status: 'pending'
+                };
+
+                const { error } = await supabase.from('project_requests').insert(entry);
+                if (error) throw error;
+
+                alert('Request submitted successfully. Hilex will review and contact you shortly.');
+                document.getElementById('request-modal').style.display = 'none';
+                e.target.reset();
+            } catch (err) {
+                alert('Error submitting request: ' + err.message);
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        document.getElementById('open-request-modal').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('request-modal').style.display = 'flex';
+        });
+
+        // Initialize
+        loadProjects();
+    </script>
+</body>
+
+</html>
