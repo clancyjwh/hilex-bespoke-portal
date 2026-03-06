@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Project Review | Hilex</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .admin-controls {
+            background: rgba(255, 214, 0, 0.05);
+            border: 1px dashed var(--accent-yellow);
+            padding: 1.5rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container" style="padding-top: 4rem; padding-bottom: 4rem;">
+        <nav style="margin-bottom: 2rem; display: flex; justify-content: space-between;">
+            <a href="index.html"
+                style="color: var(--accent-cyan); text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                Back to Admin Dashboard
+            </a>
+            <span
+                style="color: var(--accent-yellow); font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px;">Admin
+                View</span>
+        </nav>
+
+        <div class="admin-controls">
+            <div>
+                <h3 style="color: var(--accent-yellow); margin-bottom: 0.25rem;">Project Modulation Mode</h3>
+                <p style="color: var(--text-secondary); font-size: 0.8rem;">You are currently modifying insights for
+                    this client.</p>
+            </div>
+            <div style="display: flex; gap: 1rem;">
+                <button class="glass-button"
+                    style="color: var(--accent-yellow); border-color: var(--accent-yellow);">Add Insight</button>
+                <button class="primary-button">Log Optimization</button>
+            </div>
+        </div>
+
+        <!-- The actual project view logic will be injected here or mirrored from the user view -->
+        <iframe src="../user/view.html" id="project-mirror"
+            style="width: 100%; height: 1200px; border: none; background: transparent;"></iframe>
+    </div>
+
+    <script src="../../js/auth.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const projectId = urlParams.get('id');
+        if (projectId) {
+            document.getElementById('project-mirror').src = `../user/view.html?id=${projectId}`;
+        }
+    </script>
+</body>
+
+</html>
