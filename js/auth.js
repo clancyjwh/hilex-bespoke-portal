@@ -23,6 +23,11 @@ async function handleLogin(email, password) {
 
         if (error) throw error;
 
+        // If session is null, it means email verification is required and hasn't been completed
+        if (!data.session) {
+            throw new Error('Please verify your email address before logging in.');
+        }
+
         // Fetch user profile to check role
         let { data: profile, error: profileError } = await supabaseClient
             .from('profiles')
