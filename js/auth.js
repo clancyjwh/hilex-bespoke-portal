@@ -3,7 +3,7 @@ const SUPABASE_URL = 'https://amhmyuxzktxofskwrirl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaG15dXh6a3R4b2Zza3dyaXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDIxMjQsImV4cCI6MjA4ODM3ODEyNH0.YoG2vPY12nOi_qgXNdNlu5KV3ABZU_S0LCm-bBWaUUI';
 
 // use 'supabaseClient' to avoid shadowing the global 'supabase' object from the CDN
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * Handle user login and role-based redirection

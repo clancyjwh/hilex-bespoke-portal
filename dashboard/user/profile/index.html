@@ -123,9 +123,8 @@
                         TRENDS</span></span>
             </div>
 
-            <nav style="display: flex; flex-direction: column; gap: 0.5rem;" id="user-nav">
-                <a href="#" class="nav-link active"
-                    onclick="event.preventDefault(); switchTab('section-projects', this)">
+            <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="#" class="nav-link active">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
                         <polyline points="9 22 9 12 15 12 15 22" />
@@ -138,8 +137,7 @@
                     </svg>
                     New Request
                 </a>
-                <a href="#" class="nav-link"
-                    onclick="event.preventDefault(); switchTab('section-profile', this); loadProfileData();">
+                <a href="#" class="nav-link">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                         <circle cx="12" cy="7" r="4" />
@@ -160,57 +158,20 @@
         </aside>
 
         <main style="padding: 3rem; overflow-y: auto;">
-            <div id="section-projects" class="content-section" style="display: block;">
-                <header
-                    style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
-                    <div>
-                        <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Bespoke Projects
-                        </h1>
-                        <p style="color: var(--text-secondary);">Access your tailored empirical analysis and insights
-                        </p>
-                    </div>
-                    <button class="primary-button"
-                        onclick="document.getElementById('request-modal').style.display='flex'">
-                        Request Project
-                    </button>
-                </header>
-
-                <div id="projects-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                    <!-- Projects will be loaded here -->
-                    <div class="glass-panel" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
-                        Loading your bespoke analysis...
-                    </div>
+            <header style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end;">
+                <div>
+                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Bespoke Projects</h1>
+                    <p style="color: var(--text-secondary);">Access your tailored empirical analysis and insights</p>
                 </div>
-            </div>
+                <button class="primary-button" onclick="document.getElementById('request-modal').style.display='flex'">
+                    Request Project
+                </button>
+            </header>
 
-            <div id="section-profile" class="content-section" style="display: none;">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Profile Settings</h1>
-                    <p style="color: var(--text-secondary);">Manage your account details and preferences</p>
-                </header>
-                <div class="glass-panel" style="padding: 2rem;">
-                    <div style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 500px;">
-                        <div>
-                            <label
-                                style="color: var(--accent-cyan); font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">Full
-                                Name</label>
-                            <div style="padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; color: white;"
-                                id="profile-name">Loading...</div>
-                        </div>
-                        <div>
-                            <label
-                                style="color: var(--accent-cyan); font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">Company</label>
-                            <div
-                                style="padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; color: white;">
-                                Hilex Client</div>
-                        </div>
-                        <div>
-                            <label
-                                style="color: var(--accent-cyan); font-size: 0.8rem; font-weight: bold; text-transform: uppercase;">Email/Username</label>
-                            <div style="padding: 1rem; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-top: 0.5rem; color: white;"
-                                id="profile-username">Loading...</div>
-                        </div>
-                    </div>
+            <div id="projects-list" style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Projects will be loaded here -->
+                <div class="glass-panel" style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                    Loading your bespoke analysis...
                 </div>
             </div>
         </main>
@@ -269,7 +230,7 @@
                 const { data: { user } } = await window.supabaseClient.auth.getUser();
                 if (!user) return;
 
-                const { data: projects, error } = await window.supabaseClient
+                const { data: projects, error } = await supabase
                     .from('bespoke_projects')
                     .select('*')
                     .eq('client_id', user.id)
@@ -356,39 +317,8 @@
             document.getElementById('request-modal').style.display = 'flex';
         });
 
-        window.switchTab = (sectionId, linkElement) => {
-            document.querySelectorAll('.content-section').forEach(sec => {
-                sec.style.display = 'none';
-            });
-            document.getElementById(sectionId).style.display = 'block';
-
-            document.querySelectorAll('#user-nav .nav-link').forEach(link => {
-                // Keep the 'New Request' link out of active toggling
-                if (link.id !== 'open-request-modal') link.classList.remove('active');
-            });
-            if (linkElement) {
-                linkElement.classList.add('active');
-            }
-        };
-
-        window.loadProfileData = async () => {
-            try {
-                const { data: { user } } = await window.supabaseClient.auth.getUser();
-                if (!user) return;
-                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
-                if (profile) {
-                    document.getElementById('profile-name').innerText = profile.full_name || 'N/A';
-                    document.getElementById('profile-username').innerText = profile.username || 'N/A';
-                }
-            } catch (e) {
-                console.error('Error loading profile', e);
-            }
-        };
-
         // Initialize
         loadProjects();
-        // Preload profile data
-        loadProfileData();
     </script>
 </body>
 

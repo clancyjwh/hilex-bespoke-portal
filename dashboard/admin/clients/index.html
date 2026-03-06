@@ -108,9 +108,8 @@
                         style="font-size: 0.7rem; color: var(--accent-cyan); font-weight: 900;">ADMIN</span></span>
             </div>
 
-            <nav style="display: flex; flex-direction: column; gap: 0.5rem;" id="admin-nav">
-                <a href="#" class="nav-link active"
-                    onclick="event.preventDefault(); switchTab('section-overview', this)">
+            <nav style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <a href="#" class="nav-link active">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="7" height="7"></rect>
                         <rect x="14" y="3" width="7" height="7"></rect>
@@ -119,13 +118,13 @@
                     </svg>
                     Overview
                 </a>
-                <a href="#" class="nav-link" onclick="event.preventDefault(); switchTab('section-revenue', this)">
+                <a href="#" class="nav-link">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M12 20v-6M9 20v-10M15 20v-4M3 20h18"></path>
                     </svg>
                     Revenue
                 </a>
-                <a href="#" class="nav-link" onclick="event.preventDefault(); switchTab('section-requests', this)">
+                <a href="#" class="nav-link">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
@@ -135,7 +134,7 @@
                     </svg>
                     Project Requests
                 </a>
-                <a href="#" class="nav-link" onclick="event.preventDefault(); switchTab('section-clients', this)">
+                <a href="#" class="nav-link">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
                         <circle cx="9" cy="7" r="4"></circle>
@@ -158,127 +157,53 @@
         </aside>
 
         <main style="padding: 3rem; overflow-y: auto;">
-            <div id="section-overview" class="content-section" style="display: block;">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Admin Control Center
-                    </h1>
-                    <p style="color: var(--text-secondary);">Manage global operations, revenue, and bespoke analytics
-                        requests</p>
-                </header>
+            <header style="margin-bottom: 3rem;">
+                <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Admin Control Center</h1>
+                <p style="color: var(--text-secondary);">Manage global operations, revenue, and bespoke analytics
+                    requests</p>
+            </header>
 
-                <div class="grid-cols-3" style="margin-bottom: 3rem;">
-                    <div class="glass-panel stat-card">
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Total
-                            Revenue
-                        </p>
-                        <div class="stat-value">$142,500</div>
-                        <p style="color: var(--accent-green); font-size: 0.8rem;">+12.5% this month</p>
-                    </div>
-                    <div class="glass-panel stat-card">
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Active
-                            Projects</p>
-                        <div class="stat-value" id="active-count">0</div>
-                        <p style="color: var(--accent-cyan); font-size: 0.8rem;">4 pending review</p>
-                    </div>
-                    <div class="glass-panel stat-card">
-                        <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Project
-                            Requests</p>
-                        <div class="stat-value" id="request-count">0</div>
-                        <p style="color: var(--accent-yellow); font-size: 0.8rem;">Needs Attention</p>
-                    </div>
+            <div class="grid-cols-3" style="margin-bottom: 3rem;">
+                <div class="glass-panel stat-card">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Total Revenue
+                    </p>
+                    <div class="stat-value">$142,500</div>
+                    <p style="color: var(--accent-green); font-size: 0.8rem;">+12.5% this month</p>
                 </div>
-
-                <section class="glass-panel" style="padding: 2rem;">
-                    <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Incoming Project Requests</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Client</th>
-                                <th>Type</th>
-                                <th>Requested</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="requests-table-body">
-                            <!-- Requests will be loaded here -->
-                            <tr>
-                                <td colspan="5" style="text-align: center; padding: 2rem;">Loading requests...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </section>
-            </div>
-
-            <div id="section-revenue" class="content-section" style="display: none;">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Revenue Analytics</h1>
-                    <p style="color: var(--text-secondary);">Detailed breakdown of ARR and financial metrics</p>
-                </header>
-                <div class="glass-panel" style="padding: 3rem; text-align: center;">
-                    <h2 style="color: var(--accent-green); font-size: 3rem; margin-bottom: 1rem;">$142,500</h2>
-                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Total Annual Recurring Revenue</p>
-                    <div style="display: flex; justify-content: center; gap: 4rem;">
-                        <div style="text-align: left;">
-                            <p
-                                style="color: var(--accent-cyan); font-weight: bold; text-transform: uppercase; font-size: 0.8rem;">
-                                Q1 Projected</p>
-                            <p style="font-size: 1.5rem; font-weight: bold;">$45,000</p>
-                        </div>
-                        <div style="text-align: left;">
-                            <p
-                                style="color: var(--accent-cyan); font-weight: bold; text-transform: uppercase; font-size: 0.8rem;">
-                                Churn Rate</p>
-                            <p style="font-size: 1.5rem; font-weight: bold;">1.2%</p>
-                        </div>
-                    </div>
+                <div class="glass-panel stat-card">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Active
+                        Projects</p>
+                    <div class="stat-value" id="active-count">0</div>
+                    <p style="color: var(--accent-cyan); font-size: 0.8rem;">4 pending review</p>
+                </div>
+                <div class="glass-panel stat-card">
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); text-transform: uppercase;">Project
+                        Requests</p>
+                    <div class="stat-value" id="request-count">0</div>
+                    <p style="color: var(--accent-yellow); font-size: 0.8rem;">Needs Attention</p>
                 </div>
             </div>
 
-            <div id="section-requests" class="content-section" style="display: none;">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">All Project Requests
-                    </h1>
-                    <p style="color: var(--text-secondary);">Comprehensive history of all client requests</p>
-                </header>
-                <div class="glass-panel" style="padding: 2rem;">
-                    <p style="color: var(--text-secondary); text-align: center; margin: 2rem 0;">Advanced request
-                        filtering and full history will appear here.</p>
-                </div>
-            </div>
-
-            <div id="section-clients" class="content-section" style="display: none;">
-                <header style="margin-bottom: 3rem;">
-                    <h1 class="text-gradient" style="font-size: 2.5rem; margin-bottom: 0.5rem;">Client Directory</h1>
-                    <p style="color: var(--text-secondary);">Manage users, permissions, and bespoke profiles</p>
-                </header>
-                <div class="glass-panel" style="padding: 2rem;">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Client Name</th>
-                                <th>Company</th>
-                                <th>Active Projects</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Alice Smith</td>
-                                <td>Acme Corp</td>
-                                <td>2</td>
-                                <td><span style="color: var(--accent-green)">Active</span></td>
-                            </tr>
-                            <tr>
-                                <td>Bob Jones</td>
-                                <td>Globex</td>
-                                <td>1</td>
-                                <td><span style="color: var(--accent-green)">Active</span></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <section class="glass-panel" style="padding: 2rem;">
+                <h2 style="margin-bottom: 1.5rem; font-size: 1.2rem;">Incoming Project Requests</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Client</th>
+                            <th>Type</th>
+                            <th>Requested</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="requests-table-body">
+                        <!-- Requests will be loaded here -->
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem;">Loading requests...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
         </main>
     </div>
 
@@ -294,7 +219,7 @@
                 document.getElementById('request-count').innerText = requestCount || 0;
 
                 // Load requests with client names
-                const { data: requests, error } = await window.supabaseClient
+                const { data: requests, error } = await supabase
                     .from('project_requests')
                     .select('*, profiles(full_name, username)')
                     .order('created_at', { ascending: false });
@@ -329,23 +254,6 @@
 
         window.reviewRequest = (id) => {
             alert('Reviewing request: ' + id + '\nYou can now download datasets and prepare the analysis.');
-        };
-
-        window.switchTab = (sectionId, linkElement) => {
-            // Hide all sections
-            document.querySelectorAll('.content-section').forEach(sec => {
-                sec.style.display = 'none';
-            });
-            // Show target section
-            document.getElementById(sectionId).style.display = 'block';
-
-            // Update active state on nav links
-            document.querySelectorAll('#admin-nav .nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
-            if (linkElement) {
-                linkElement.classList.add('active');
-            }
         };
 
         loadAdminData();
