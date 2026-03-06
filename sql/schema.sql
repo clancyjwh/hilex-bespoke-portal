@@ -1,7 +1,11 @@
 -- Hilex Portal: Supabase Database Schema
 
 -- 1. Create Profile Roles Enum
-CREATE TYPE user_role AS ENUM ('user', 'admin');
+DO $$ BEGIN
+    CREATE TYPE user_role AS ENUM ('user', 'admin');
+EXCEPTION
+    WHEN duplicate_object THEN null;
+END $$;
 
 -- 2. Create Profiles Table
 CREATE TABLE IF NOT EXISTS profiles (
@@ -55,39 +59,56 @@ ALTER TABLE bespoke_projects ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_insights ENABLE ROW LEVEL SECURITY;
 ALTER TABLE project_requests ENABLE ROW LEVEL SECURITY;
 
--- 7. Define RLS Policies
+-- 7. Define RLS Policies (Safely Drop First)
 
--- Profiles: Users see own, Admins see all
+-- Profiles
+DROP POLICY IF EXISTS "Users can view own profile" ON profiles;
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can insert own profile" ON profiles;
 CREATE POLICY "Users can insert own profile" ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Users can update own profile" ON profiles;
 CREATE POLICY "Users can update own profile" ON profiles FOR UPDATE USING (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Admins can view all profiles" ON profiles;
 CREATE POLICY "Admins can view all profiles" ON profiles FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- Projects: Users see own, Admins see all
+-- Projects
+DROP POLICY IF EXISTS "Users can view own projects" ON bespoke_projects;
 CREATE POLICY "Users can view own projects" ON bespoke_projects FOR SELECT USING (client_id = auth.uid());
+
+DROP POLICY IF EXISTS "Admins can view all projects" ON bespoke_projects;
 CREATE POLICY "Admins can view all projects" ON bespoke_projects FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- Requests: Users can view/create own, Admins see all
+-- Requests
+DROP POLICY IF EXISTS "Users can view own requests" ON project_requests;
 CREATE POLICY "Users can view own requests" ON project_requests FOR SELECT USING (client_id = auth.uid());
+
+DROP POLICY IF EXISTS "Users can create requests" ON project_requests;
 CREATE POLICY "Users can create requests" ON project_requests FOR INSERT WITH CHECK (client_id = auth.uid());
+
+DROP POLICY IF EXISTS "Admins can manage all requests" ON project_requests;
 CREATE POLICY "Admins can manage all requests" ON project_requests FOR ALL USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
--- Insights: Inherit from Project access
+-- Insights
+DROP POLICY IF EXISTS "Users can view insights for own projects" ON project_insights;
 CREATE POLICY "Users can view insights for own projects" ON project_insights FOR SELECT USING (
     EXISTS (SELECT 1 FROM bespoke_projects WHERE id = project_id AND client_id = auth.uid())
 );
+
+DROP POLICY IF EXISTS "Admins can view all insights" ON project_insights;
 CREATE POLICY "Admins can view all insights" ON project_insights FOR SELECT USING (
     EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
 );
 
 -- 8. Automatic Profile Creation on Signup
--- This function inserts a row into public.profiles
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
