@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,54 +11,111 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
+
 <body class="flex-center" style="min-height: 100vh;">
-    
+
     <div class="container" style="max-width: 480px;">
         <div class="glass-panel animate-fade-in" style="padding: 3rem;">
             <div style="text-align: center; margin-bottom: 2.5rem;">
                 <div style="display: inline-flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M5 25L15 15L22 22L35 9" stroke="var(--accent-cyan)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M25 9H35V19" stroke="var(--accent-cyan)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5 25L15 15L22 22L35 9" stroke="var(--accent-cyan)" stroke-width="4"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M25 9H35V19" stroke="var(--accent-cyan)" stroke-width="4" stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
-                    <span style="font-size: 2rem; font-weight: 800; letter-spacing: 1px;">HILEX</span>
+                    <span style="font-size: 1.6rem; font-weight: 800; letter-spacing: 1px; white-space: nowrap;">HilEX
+                        <span
+                            style="font-weight: 400; font-size: 0.9rem; vertical-align: middle; opacity: 0.7;">OPTIMIZED
+                            TRENDS</span></span>
                 </div>
-                <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Welcome Back</h1>
-                <p style="color: var(--text-secondary); font-size: 0.9rem;">Please enter your credentials to access the portal</p>
+
+                <div id="login-section">
+                    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Portal Access</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Empirically optimized analysis entry</p>
+                </div>
+                <div id="signup-section" style="display: none;">
+                    <h1 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Initialize Account</h1>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">Join the Hilex research network</p>
+                </div>
             </div>
 
+            <!-- Login Form -->
             <form id="login-form" style="display: flex; flex-direction: column; gap: 1.5rem;">
                 <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <label for="email" style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Email Address</label>
-                    <input type="email" id="email" required 
+                    <label for="email"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Email
+                        Address</label>
+                    <input type="email" id="email" required
                         style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);"
-                        onfocus="this.style.borderColor='var(--accent-cyan)'" onblur="this.style.borderColor='var(--border-color)'">
+                        onfocus="this.style.borderColor='var(--accent-cyan)'"
+                        onblur="this.style.borderColor='var(--border-color)'">
                 </div>
 
                 <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <label for="password" style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Password</label>
-                    <input type="password" id="password" required 
+                    <label for="password"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Password</label>
+                    <input type="password" id="password" required
                         style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);"
-                        onfocus="this.style.borderColor='var(--accent-cyan)'" onblur="this.style.borderColor='var(--border-color)'">
+                        onfocus="this.style.borderColor='var(--accent-cyan)'"
+                        onblur="this.style.borderColor='var(--border-color)'">
                 </div>
 
                 <button type="submit" class="primary-button" style="justify-content: center; margin-top: 1rem;">
-                    Portal Access
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 10H16M16 10L12 6M16 10L12 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    </svg>
+                    Enter Portal
                 </button>
+                <p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                    Don't have an account? <a href="#" onclick="toggleAuthMode()"
+                        style="color: var(--accent-cyan); text-decoration: none;">Sign Up</a>
+                </p>
             </form>
 
-            <div id="error-message" style="color: var(--accent-red); margin-top: 1.5rem; text-align: center; font-size: 0.9rem; display: none;"></div>
+            <!-- Signup Form -->
+            <form id="signup-form" style="display: none; flex-direction: column; gap: 1.5rem;">
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="signup-name"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Full
+                        Name</label>
+                    <input type="text" id="signup-name" required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+                </div>
+
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="signup-email"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Email
+                        Address</label>
+                    <input type="email" id="signup-email" required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+                </div>
+
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="signup-password"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Password</label>
+                    <input type="password" id="signup-password" required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+                </div>
+
+                <button type="submit" class="primary-button" style="justify-content: center; margin-top: 1rem;">
+                    Create Account
+                </button>
+                <p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary);">
+                    Already have an account? <a href="#" onclick="toggleAuthMode()"
+                        style="color: var(--accent-cyan); text-decoration: none;">Log In</a>
+                </p>
+            </form>
+
+            <div id="error-message"
+                style="color: var(--accent-red); margin-top: 1.5rem; text-align: center; font-size: 0.9rem; display: none; padding: 10px; border: 1px solid rgba(255,61,0,0.2); border-radius: 8px; background: rgba(255,61,0,0.05);">
+            </div>
         </div>
-        
+
         <p style="text-align: center; margin-top: 2rem; color: var(--text-secondary); font-size: 0.8rem;">
-            Empirically Optimized Analysis. © 2026 Hilex.
+            Empirically Optimized Analysis. © 2026 HilEX Optimized Trends.
         </p>
     </div>
 
     <script src="js/auth.js"></script>
     <script src="js/app.js"></script>
 </body>
+
 </html>
