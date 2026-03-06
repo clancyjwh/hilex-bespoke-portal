@@ -100,6 +100,49 @@ async function handleSignup(email, password, fullName) {
 }
 
 /**
+ * Handle Google OAuth
+ */
+async function handleGoogleLogin() {
+    const errorDisplay = document.getElementById('error-message');
+    try {
+        const { data, error } = await supabaseClient.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + window.location.pathname // Redirect back here to let auth state listener catch it
+            }
+        });
+        if (error) throw error;
+    } catch (err) {
+        console.error('Google Auth Error:', err.message);
+        errorDisplay.innerText = err.message;
+        errorDisplay.style.display = 'block';
+    }
+}
+
+/**
+ * Handle Auth State Change (needed for OAuth redirects like Google)
+ */
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+    if (event === 'SIGNED_IN' && session) {
+        // Fetch user profile to check role
+        let { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('role')
+            .eq('id', session.user.id)
+            .single();
+
+        // Redirect based on role if we're on the login page
+        if (window.location.pathname.endsWith('index.html') && !window.location.pathname.includes('/dashboard/')) {
+            if (profile && profile.role === 'admin') {
+                window.location.href = 'dashboard/admin/index.html';
+            } else {
+                window.location.href = 'dashboard/user/index.html';
+            }
+        }
+    }
+});
+
+/**
  * Logout utility
  */
 window.handleLogout = async () => {
@@ -122,6 +165,9 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
     const fullName = document.getElementById('signup-name').value;
     await handleSignup(email, password, fullName);
 });
+
+document.getElementById('google-login-btn')?.addEventListener('click', handleGoogleLogin);
+document.getElementById('google-signup-btn')?.addEventListener('click', handleGoogleLogin);
 
 function toggleAuthMode() {
     const loginSection = document.getElementById('login-section');
