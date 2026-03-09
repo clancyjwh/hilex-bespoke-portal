@@ -141,7 +141,7 @@ function toggleAuthMode() {
 window.toggleAuthMode = toggleAuthMode;
 
 // Single Sign-On (SSO) Interceptor
-window.addEventListener('DOMContentLoaded', () => {
+function processSSO() {
     const hash = window.location.hash;
     if (hash && hash.includes('access_token=') && hash.includes('role=')) {
         // Parse hash manually as URLSearchParams sometimes struggles with fragment identifiers
@@ -169,6 +169,14 @@ window.addEventListener('DOMContentLoaded', () => {
                     window.location.href = 'dashboard/user/index.html';
                 }
             }, 300);
+            return true;
         }
     }
-});
+    return false;
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', processSSO);
+} else {
+    processSSO();
+}
