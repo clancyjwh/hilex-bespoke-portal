@@ -143,7 +143,7 @@ window.toggleAuthMode = toggleAuthMode;
 // Single Sign-On (SSO) Interceptor
 function processSSO() {
     const hash = window.location.hash;
-    if (hash && hash.includes('access_token=') && hash.includes('role=')) {
+    if (hash && hash.includes('sso_token=') && hash.includes('role=')) {
         // Parse hash manually as URLSearchParams sometimes struggles with fragment identifiers
         const hashParams = hash.substring(1).split('&');
         let role = '';
