@@ -139,3 +139,36 @@ function toggleAuthMode() {
 }
 
 window.toggleAuthMode = toggleAuthMode;
+
+// Single Sign-On (SSO) Interceptor
+window.addEventListener('DOMContentLoaded', () => {
+    const hash = window.location.hash;
+    if (hash && hash.includes('access_token=') && hash.includes('role=')) {
+        // Parse hash manually as URLSearchParams sometimes struggles with fragment identifiers
+        const hashParams = hash.substring(1).split('&');
+        let role = '';
+
+        for (let param of hashParams) {
+            const [key, value] = param.split('=');
+            if (key === 'role') {
+                role = value;
+            }
+        }
+
+        if (role) {
+            const submitBtn = document.querySelector('#login-form button');
+            if (submitBtn) {
+                submitBtn.innerText = 'Authenticating via SSO...';
+                submitBtn.disabled = true;
+            }
+
+            setTimeout(() => {
+                if (role === 'admin') {
+                    window.location.href = 'dashboard/admin/index.html';
+                } else {
+                    window.location.href = 'dashboard/user/index.html';
+                }
+            }, 300);
+        }
+    }
+});
