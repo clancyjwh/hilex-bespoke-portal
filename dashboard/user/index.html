@@ -419,14 +419,16 @@
                         <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Industry / Sector
                             *</label>
                         <select id="request-industry" required
-                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;">
+                            style="background: #1e293b; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;"
+                            onchange="this.value === 'other' ? document.getElementById('industry-other-group').style.display='flex' : document.getElementById('industry-other-group').style.display='none'">
                             <option value="">Select an industry</option>
-                            <option value="financial">Financial Services</option>
-                            <option value="real_estate">Real Estate</option>
+                            <option value="financial">Financial Services (Trading, Banking)</option>
+                            <option value="real_estate">Real Estate (Rental, Sales)</option>
+                            <option value="ecommerce">E-commerce & Retail</option>
                             <option value="logistics">Logistics & Supply Chain</option>
                             <option value="crypto">Web3 & Cryptocurrency</option>
-                            <option value="retail">Retail & E-commerce</option>
-                            <option value="other">Other / Custom</option>
+                            <option value="healthcare">Healthcare & Biotech</option>
+                            <option value="other">Other / Custom (Specify below)</option>
                         </select>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -437,28 +439,58 @@
                     </div>
                 </div>
 
+                <!-- Custom Industry Input -->
+                <div id="industry-other-group" style="display: none; flex-direction: column; gap: 0.5rem;">
+                    <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Specify Industry
+                        *</label>
+                    <input type="text" id="request-industry-other" placeholder="Enter your industry"
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white;">
+                </div>
+
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Data Type
                             *</label>
                         <select id="request-data-type" required
-                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;">
+                            style="background: #1e293b; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;"
+                            onchange="this.value === 'other' ? document.getElementById('data-type-other-group').style.display='flex' : document.getElementById('data-type-other-group').style.display='none'">
                             <option value="">Select data type</option>
-                            <option value="own_dataset">I have my own dataset</option>
-                            <option value="help_sourcing">I need help sourcing data</option>
+                            <option value="own_dataset">I have my own dataset (CSV, SQL, JSON)</option>
+                            <option value="help_sourcing">I need help sourcing market data</option>
+                            <option value="unstructured">I have unstructured data (News, Social)</option>
                             <option value="not_sure">Not sure yet</option>
+                            <option value="other">Other (Specify below)</option>
                         </select>
                     </div>
                     <div style="display: flex; flex-direction: column; gap: 0.5rem;">
                         <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Goal *</label>
                         <select id="request-goal" required
-                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;">
+                            style="background: #1e293b; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none;"
+                            onchange="this.value === 'other' ? document.getElementById('goal-other-group').style.display='flex' : document.getElementById('goal-other-group').style.display='none'">
                             <option value="">Select a goal</option>
-                            <option value="identify_patterns">Identify patterns</option>
-                            <option value="optimize_parameters">Optimize parameters</option>
-                            <option value="benchmark_performance">Benchmark performance</option>
-                            <option value="custom_research">Custom research</option>
+                            <option value="identify_patterns">Identify Hidden Patterns</option>
+                            <option value="optimize_parameters">Optimize Parameters & Thresholds</option>
+                            <option value="benchmark_performance">Benchmark Performance</option>
+                            <option value="forecasting">Trend Forecasting</option>
+                            <option value="custom_research">Custom Empirical Research</option>
+                            <option value="other">Other (Specify below)</option>
                         </select>
+                    </div>
+                </div>
+
+                <!-- Custom Data Type and Goal Inputs -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div id="data-type-other-group" style="display: none; flex-direction: column; gap: 0.5rem;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Specify Data Type
+                            *</label>
+                        <input type="text" id="request-data-type-other" placeholder="Enter data type"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white;">
+                    </div>
+                    <div id="goal-other-group" style="display: none; flex-direction: column; gap: 0.5rem;">
+                        <label style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan);">Specify Goal
+                            *</label>
+                        <input type="text" id="request-goal-other" placeholder="Enter your goal"
+                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white;">
                     </div>
                 </div>
 
@@ -548,13 +580,17 @@
                 const { data: { user } } = await window.supabaseClient.auth.getUser();
                 if (!user) throw new Error('You must be logged in to submit a request.');
 
+                const industryVal = document.getElementById('request-industry').value;
+                const dataTypeVal = document.getElementById('request-data-type').value;
+                const goalVal = document.getElementById('request-goal').value;
+
                 const entry = {
                     client_id: user.id,
                     project_type: 'Bespoke Analysis',
-                    industry: document.getElementById('request-industry').value,
+                    industry: industryVal === 'other' ? document.getElementById('request-industry-other').value : industryVal,
                     project_focus: document.getElementById('request-focus').value,
-                    data_type: document.getElementById('request-data-type').value,
-                    goal: document.getElementById('request-goal').value,
+                    data_type: dataTypeVal === 'other' ? document.getElementById('request-data-type-other').value : dataTypeVal,
+                    goal: goalVal === 'other' ? document.getElementById('request-goal-other').value : goalVal,
                     notes: document.getElementById('request-notes').value,
                     status: 'pending'
                 };
