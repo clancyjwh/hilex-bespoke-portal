@@ -62,14 +62,14 @@ async function handleLogin(email, password) {
 }
 
 /**
- * Handle user signup
+ * Handle user signup with expanded profile fields
  */
-async function handleSignup(email, password, fullName) {
+async function handleSignup(email, password, firstName, lastName, companyName, companyDescription) {
     const errorDisplay = document.getElementById('error-message');
     const submitBtn = document.querySelector('#signup-form button');
 
     try {
-        submitBtn.innerText = 'Creating Account...';
+        submitBtn.innerText = 'Initializing...';
         submitBtn.disabled = true;
 
         const { data, error } = await supabaseClient.auth.signUp({
@@ -77,7 +77,10 @@ async function handleSignup(email, password, fullName) {
             password,
             options: {
                 data: {
-                    full_name: fullName
+                    first_name: firstName,
+                    last_name: lastName,
+                    full_name: `${firstName} ${lastName}`,
+                    company_name: companyName
                 }
             }
         });
@@ -89,29 +92,29 @@ async function handleSignup(email, password, fullName) {
             throw new Error('This email is already registered.');
         }
 
-        // 1. Insert into shared 'users' table to ensure role-based logic works
+        // 1. Insert into shared 'users' table with expanded company info
         const { error: insertError } = await supabaseClient.from('users').insert({
             id: data.user.id,
             email: email,
-            full_name: fullName,
-            role: 'user', // default for main app
-            bespoke_role: 'user' // default for bespoke portal
+            first_name: firstName,
+            last_name: lastName,
+            full_name: `${firstName} ${lastName}`,
+            company_name: companyName,
+            company_description: companyDescription,
+            role: 'user',
+            bespoke_role: 'user'
         });
 
         if (insertError) {
             console.error('Error creating user record:', insertError);
-            // We don't throw here because the auth account WAS created, 
-            // but the user might need to contact support if the row insert failed.
         }
 
-        // 2. Clearer state handling for "nothing happened"
+        // 2. Clearer state handling
         if (data.session) {
-            // Auto-logged in (email confirmation off)
-            alert('Account created! Redirecting to portal...');
+            alert('Registration successful! Redirecting to portal...');
             window.location.href = 'dashboard/user/index.html';
         } else {
-            // Confirmation required
-            alert('Account created! Please check your email (' + email + ') for a verification link before logging in.');
+            alert('Registration initialized! Please check ' + email + ' for a verification link.');
             toggleAuthMode();
         }
 
@@ -120,7 +123,7 @@ async function handleSignup(email, password, fullName) {
         errorDisplay.innerText = err.message;
         errorDisplay.style.display = 'block';
     } finally {
-        submitBtn.innerText = 'Create Account';
+        submitBtn.innerText = 'Initialize Registration';
         submitBtn.disabled = false;
     }
 }
@@ -146,8 +149,12 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
     e.preventDefault();
     const email = document.getElementById('signup-email').value;
     const password = document.getElementById('signup-password').value;
-    const fullName = document.getElementById('signup-name').value;
-    await handleSignup(email, password, fullName);
+    const firstName = document.getElementById('signup-firstname').value;
+    const lastName = document.getElementById('signup-lastname').value;
+    const companyName = document.getElementById('signup-company').value;
+    const companyDescription = document.getElementById('signup-description').value;
+
+    await handleSignup(email, password, firstName, lastName, companyName, companyDescription);
 });
 
 

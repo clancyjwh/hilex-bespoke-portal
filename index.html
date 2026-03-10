@@ -72,13 +72,22 @@
             </form>
 
             <!-- Signup Form -->
-            <form id="signup-form" style="display: none; flex-direction: column; gap: 1.5rem;">
-                <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                    <label for="signup-name"
-                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Full
-                        Name</label>
-                    <input type="text" id="signup-name" required
-                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+            <form id="signup-form" style="display: none; flex-direction: column; gap: 1.2rem;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label for="signup-firstname"
+                            style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">First
+                            Name</label>
+                        <input type="text" id="signup-firstname" required
+                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+                    </div>
+                    <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                        <label for="signup-lastname"
+                            style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Last
+                            Name</label>
+                        <input type="text" id="signup-lastname" required
+                            style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+                    </div>
                 </div>
 
                 <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -90,6 +99,22 @@
                 </div>
 
                 <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="signup-company"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Company
+                        Name</label>
+                    <input type="text" id="signup-company" required
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth);">
+                </div>
+
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <label for="signup-description"
+                        style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Company
+                        Description (Short)</label>
+                    <textarea id="signup-description" required rows="3" maxlength="1000" placeholder="Max 200 words..."
+                        style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 12px; color: white; outline: none; transition: var(--transition-smooth); resize: none; font-family: inherit; font-size: 0.9rem;"></textarea>
+                </div>
+
+                <div class="input-group" style="display: flex; flex-direction: column; gap: 0.5rem;">
                     <label for="signup-password"
                         style="font-size: 0.8rem; font-weight: 600; color: var(--accent-cyan); text-transform: uppercase;">Password</label>
                     <input type="password" id="signup-password" required
@@ -97,7 +122,7 @@
                 </div>
 
                 <button type="submit" class="primary-button" style="justify-content: center; margin-top: 1rem;">
-                    Create Account
+                    Initialize Registration
                 </button>
 
                 <p style="text-align: center; font-size: 0.85rem; color: var(--text-secondary); margin-top: 1rem;">
