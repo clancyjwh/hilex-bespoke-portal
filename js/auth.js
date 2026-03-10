@@ -1,8 +1,6 @@
-// Supabase Configuration — shared with REAL-HILEXAPP (same Supabase project)
-// The REAL-HILEXAPP uses VITE_SUPABASE_URL env var; this value must match exactly.
-// Update this URL if the main app's Supabase project changes.
-const SUPABASE_URL = 'https://amhmyuxzktxofskwrirl.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaG15dXh6a3R4b2Zza3dyaXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDIxMjQsImV4cCI6MjA4ODM3ODEyNH0.YoG2vPY12nOi_qgXNdNlu5KV3ABZU_S0LCm-bBWaUUI';
+// Supabase Configuration — shared Supabase project with REAL-HILEXAPP
+const SUPABASE_URL = 'https://avijzlkdukanneylvtrd.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF2aWp6bGtkdWthbm5leWx2dHJkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjEzMzUxNTUsImV4cCI6MjA3NjkxMTE1NX0.w6C4WuyugBoZdFxp6kxPEUuMVgqIaokkhrTyck7hzTY';
 
 // use 'supabaseClient' to avoid shadowing the global 'supabase' object from the CDN
 window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -30,20 +28,25 @@ async function handleLogin(email, password) {
             throw new Error('Please verify your email address before logging in.');
         }
 
-        // Fetch user profile to check role
-        let { data: profile, error: profileError } = await supabaseClient
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
+        // Determine bespoke_role: check users table first, fall back to email check
+        const userEmail = data.user.email;
 
-        if (profileError || !profile) {
-            console.error('Profile Fetch Error:', profileError);
-            throw new Error('Database Error: Profile setup is incomplete. Admin needs to run the reset_auth.sql script.');
+        let bespokeRole = 'user'; // default
+
+        const { data: userRow } = await supabaseClient
+            .from('users')
+            .select('bespoke_role')
+            .eq('id', data.user.id)
+            .maybeSingle();
+
+        if (userRow && userRow.bespoke_role) {
+            bespokeRole = userRow.bespoke_role;
+        } else if (userEmail === 'clancyjhodgins@gmail.com') {
+            bespokeRole = 'admin';
         }
 
-        // Redirect based on role
-        if (profile.role === 'admin') {
+        // Redirect based on bespoke_role
+        if (bespokeRole === 'admin') {
             window.location.href = 'dashboard/admin/index.html';
         } else {
             window.location.href = 'dashboard/user/index.html';
