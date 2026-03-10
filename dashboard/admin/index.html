@@ -194,7 +194,8 @@
                         <thead>
                             <tr>
                                 <th>Client</th>
-                                <th>Type</th>
+                                <th>Industry / Focus</th>
+                                <th>Goal / Data</th>
                                 <th>Requested</th>
                                 <th>Status</th>
                                 <th>Actions</th>
@@ -203,7 +204,7 @@
                         <tbody id="requests-table-body">
                             <!-- Requests will be loaded here -->
                             <tr>
-                                <td colspan="5" style="text-align: center; padding: 2rem;">Loading requests...</td>
+                                <td colspan="6" style="text-align: center; padding: 2rem;">Loading requests...</td>
                             </tr>
                         </tbody>
                     </table>
@@ -303,14 +304,24 @@
 
                 const tbody = document.getElementById('requests-table-body');
                 if (!requests || requests.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">No new requests.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No new requests.</td></tr>';
                     return;
                 }
 
                 tbody.innerHTML = requests.map(r => `
                     <tr>
-                        <td>${r.profiles?.full_name || r.profiles?.username || 'Unknown'}</td>
-                        <td>${r.project_type}</td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-primary);">${r.profiles?.full_name || 'Unknown'}</div>
+                            <div style="font-size: 0.75rem; color: var(--text-secondary);">${r.profiles?.username || ''}</div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--accent-cyan);">${r.industry || 'N/A'}</div>
+                            <div style="font-size: 0.75rem;">${r.project_focus || ''}</div>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.85rem;">${r.data_type || 'N/A'}</div>
+                            <div style="font-size: 0.75rem; color: var(--accent-green);">${r.goal || ''}</div>
+                        </td>
                         <td>${new Date(r.created_at).toLocaleDateString()}</td>
                         <td><span style="color: var(--accent-yellow)">${r.status}</span></td>
                         <td>
