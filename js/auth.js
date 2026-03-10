@@ -161,6 +161,8 @@ document.getElementById('signup-form')?.addEventListener('submit', async (e) => 
 function toggleAuthMode() {
     const loginSection = document.getElementById('login-section');
     const signupSection = document.getElementById('signup-section');
+    const loginForm = document.getElementById('login-form');
+    const signupForm = document.getElementById('signup-form');
     const errorDisplay = document.getElementById('error-message');
 
     errorDisplay.style.display = 'none';
@@ -168,9 +170,13 @@ function toggleAuthMode() {
     if (loginSection.style.display === 'none') {
         loginSection.style.display = 'block';
         signupSection.style.display = 'none';
+        loginForm.style.display = 'flex';
+        signupForm.style.display = 'none';
     } else {
         loginSection.style.display = 'none';
         signupSection.style.display = 'block';
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'flex';
     }
 }
 
