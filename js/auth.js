@@ -83,13 +83,37 @@ async function handleSignup(email, password, fullName) {
         });
 
         if (error) throw error;
+        if (!data.user) throw new Error('Signup failed.');
 
-        if (data.user && data.user.identities && data.user.identities.length === 0) {
+        if (data.user.identities && data.user.identities.length === 0) {
             throw new Error('This email is already registered.');
         }
 
-        alert('Account created! Please check your email for verification or login if auto-verified.');
-        toggleAuthMode();
+        // 1. Insert into shared 'users' table to ensure role-based logic works
+        const { error: insertError } = await supabaseClient.from('users').insert({
+            id: data.user.id,
+            email: email,
+            full_name: fullName,
+            role: 'user', // default for main app
+            bespoke_role: 'user' // default for bespoke portal
+        });
+
+        if (insertError) {
+            console.error('Error creating user record:', insertError);
+            // We don't throw here because the auth account WAS created, 
+            // but the user might need to contact support if the row insert failed.
+        }
+
+        // 2. Clearer state handling for "nothing happened"
+        if (data.session) {
+            // Auto-logged in (email confirmation off)
+            alert('Account created! Redirecting to portal...');
+            window.location.href = 'dashboard/user/index.html';
+        } else {
+            // Confirmation required
+            alert('Account created! Please check your email (' + email + ') for a verification link before logging in.');
+            toggleAuthMode();
+        }
 
     } catch (err) {
         console.error('Signup Error:', err.message);
