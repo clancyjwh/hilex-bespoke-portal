@@ -1,4 +1,6 @@
-// Supabase Configuration
+// Supabase Configuration — shared with REAL-HILEXAPP (same Supabase project)
+// The REAL-HILEXAPP uses VITE_SUPABASE_URL env var; this value must match exactly.
+// Update this URL if the main app's Supabase project changes.
 const SUPABASE_URL = 'https://amhmyuxzktxofskwrirl.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFtaG15dXh6a3R4b2Zza3dyaXJsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MDIxMjQsImV4cCI6MjA4ODM3ODEyNH0.YoG2vPY12nOi_qgXNdNlu5KV3ABZU_S0LCm-bBWaUUI';
 
@@ -140,39 +142,81 @@ function toggleAuthMode() {
 
 window.toggleAuthMode = toggleAuthMode;
 
-// Single Sign-On (SSO) Interceptor
-function processSSO() {
-    const hash = window.location.hash;
-    if (hash && hash.includes('sso_token=') && hash.includes('role=')) {
-        // Parse hash manually as URLSearchParams sometimes struggles with fragment identifiers
-        const hashParams = hash.substring(1).split('&');
-        let role = '';
 
-        for (let param of hashParams) {
-            const [key, value] = param.split('=');
-            if (key === 'role') {
-                role = value;
-            }
+// ============================================================
+// Single Sign-On (SSO) Interceptor
+// Triggered when REAL-HILEXAPP opens this page with token hash:
+//   index.html#access_token=TOKEN&refresh_token=RTOKEN
+// ============================================================
+async function processSSO() {
+    const hash = window.location.hash;
+    if (!hash || !hash.includes('access_token=')) return false;
+
+    // Parse hash params
+    const params = {};
+    hash.substring(1).split('&').forEach(part => {
+        const [key, value] = part.split('=');
+        if (key && value) params[key] = decodeURIComponent(value);
+    });
+
+    const accessToken = params['access_token'];
+    const refreshToken = params['refresh_token'];
+
+    if (!accessToken) return false;
+
+    // Show loading state
+    const submitBtn = document.querySelector('#login-form button');
+    if (submitBtn) {
+        submitBtn.innerText = 'Authenticating via SSO...';
+        submitBtn.disabled = true;
+    }
+
+    try {
+        // Restore session from the tokens passed by REAL-HILEXAPP
+        const { data: sessionData, error: sessionError } = await supabaseClient.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken || accessToken
+        });
+
+        if (sessionError || !sessionData?.session) {
+            console.error('SSO setSession failed:', sessionError);
+            if (submitBtn) { submitBtn.innerText = 'Portal Access'; submitBtn.disabled = false; }
+            return false;
         }
 
-        if (role) {
-            const submitBtn = document.querySelector('#login-form button');
-            if (submitBtn) {
-                submitBtn.innerText = 'Authenticating via SSO...';
-                submitBtn.disabled = true;
-            }
+        const userId = sessionData.session.user.id;
 
-            setTimeout(() => {
-                if (role === 'admin') {
-                    window.location.href = 'dashboard/admin/index.html';
-                } else {
-                    window.location.href = 'dashboard/user/index.html';
-                }
-            }, 300);
+        // Look up bespoke_role from shared users table
+        const { data: userData, error: userError } = await supabaseClient
+            .from('users')
+            .select('bespoke_role')
+            .eq('id', userId)
+            .single();
+
+        if (userError || !userData) {
+            console.warn('No bespoke_role found for user, defaulting to user dashboard:', userError);
+            window.location.href = 'dashboard/user/index.html';
             return true;
         }
+
+        // Clear the hash so tokens don't linger in browser history
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+
+        setTimeout(() => {
+            if (userData.bespoke_role === 'admin') {
+                window.location.href = 'dashboard/admin/index.html';
+            } else {
+                window.location.href = 'dashboard/user/index.html';
+            }
+        }, 250);
+
+        return true;
+
+    } catch (err) {
+        console.error('SSO error:', err);
+        if (submitBtn) { submitBtn.innerText = 'Portal Access'; submitBtn.disabled = false; }
+        return false;
     }
-    return false;
 }
 
 if (document.readyState === 'loading') {
@@ -180,3 +224,4 @@ if (document.readyState === 'loading') {
 } else {
     processSSO();
 }
+
