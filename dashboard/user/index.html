@@ -518,41 +518,81 @@
                 const { data: { user } } = await window.supabaseClient.auth.getUser();
                 if (!user) return;
 
-                const { data: projects, error } = await window.supabaseClient
+                // 1. Fetch completed projects
+                const { data: projects, error: projectsError } = await window.supabaseClient
                     .from('bespoke_projects')
                     .select('*')
                     .eq('client_id', user.id)
                     .order('created_at', { ascending: false });
 
-                if (error) throw error;
+                if (projectsError) throw projectsError;
 
-                if (!projects || projects.length === 0) {
+                // 2. Fetch pending requests
+                const { data: requests, error: requestsError } = await window.supabaseClient
+                    .from('project_requests')
+                    .select('*')
+                    .eq('client_id', user.id)
+                    .order('created_at', { ascending: false });
+
+                if (requestsError) throw requestsError;
+
+                const hasContent = (projects && projects.length > 0) || (requests && requests.length > 0);
+
+                if (!hasContent) {
                     list.innerHTML = `
                         <div class="glass-panel" style="padding: 4rem; text-align: center;">
-                            <p style="color: var(--text-secondary); margin-bottom: 2rem;">No bespoke projects found. Start by requesting your first optimization.</p>
+                            <p style="color: var(--text-secondary); margin-bottom: 2rem;">No bespoke projects or requests found. Start by requesting your first optimization.</p>
                             <button class="glass-button" onclick="document.getElementById('request-modal').style.display='flex'">New Analysis Request</button>
                         </div>
                     `;
                     return;
                 }
 
-                list.innerHTML = projects.map(p => `
-                    <div class="glass-panel project-card" onclick="window.location.href='view.html?id=${p.id}'">
-                        <div style="display: flex; gap: 1.5rem; align-items: center;">
-                            <div class="score-box" style="background: ${getScoreColor(p.overarching_score)}; color: var(--bg-dark);">
-                                ${p.overarching_score > 0 ? '+' : ''}${p.overarching_score}
-                            </div>
-                            <div>
-                                <h3 style="margin-bottom: 0.25rem;">${p.title}</h3>
-                                <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                    <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
-                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Created ${new Date(p.created_at).toLocaleDateString()}</span>
+                let html = '';
+
+                // Render pending requests first
+                if (requests && requests.length > 0) {
+                    html += requests.map(r => `
+                        <div class="glass-panel project-card" style="opacity: 0.8; cursor: default;">
+                            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                                <div class="score-box" style="background: rgba(255, 255, 255, 0.1); color: var(--text-secondary); font-size: 0.8rem; text-align: center; border: 1px dashed var(--border-color);">
+                                    PEND
+                                </div>
+                                <div>
+                                    <h3 style="margin-bottom: 0.25rem;">${r.project_focus}</h3>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <span class="status-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">${r.status.toUpperCase()}</span>
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">Requested ${new Date(r.created_at).toLocaleDateString()}</span>
+                                    </div>
                                 </div>
                             </div>
+                            <div style="color: var(--text-secondary); font-size: 0.7rem; font-style: italic;">Hilex is reviewing your request</div>
                         </div>
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                    </div>
-                `).join('');
+                    `).join('');
+                }
+
+                // Render active projects
+                if (projects && projects.length > 0) {
+                    html += projects.map(p => `
+                        <div class="glass-panel project-card" onclick="window.location.href='view.html?id=${p.id}'">
+                            <div style="display: flex; gap: 1.5rem; align-items: center;">
+                                <div class="score-box" style="background: ${getScoreColor(p.overarching_score)}; color: var(--bg-dark);">
+                                    ${p.overarching_score > 0 ? '+' : ''}${p.overarching_score}
+                                </div>
+                                <div>
+                                    <h3 style="margin-bottom: 0.25rem;">${p.title}</h3>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <span class="status-badge status-${p.status.toLowerCase()}">${p.status}</span>
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">Created ${new Date(p.created_at).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--text-secondary)" stroke-width="2"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </div>
+                    `).join('');
+                }
+
+                list.innerHTML = html;
 
             } catch (err) {
                 console.error('Error loading projects:', err);
@@ -619,8 +659,8 @@
                 document.getElementById('request-modal').style.display = 'none';
                 e.target.reset();
 
-                // Refresh projects list if applicable (though this is for requests)
-                // loadProjects(); 
+                // Refresh projects list to show the new pending request
+                loadProjects();
             } catch (err) {
                 alert('Error submitting request: ' + err.message);
             } finally {
@@ -654,7 +694,7 @@
                 // To keep this identical to Hilex v2 but pulling from the real Supabase backend:
                 const { data: { user } } = await window.supabaseClient.auth.getUser();
                 if (!user) return;
-                const { data: profile } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+                const { data: profile } = await window.supabaseClient.from('profiles').select('*').eq('id', user.id).single();
 
                 const fullName = profile ? profile.full_name : "Clancy Hodgins";
                 const email = profile && profile.username ? profile.username : "clancy@example.com";

@@ -302,6 +302,14 @@
 
                 if (error) throw error;
 
+                // 3. Load clients
+                const { data: clients, error: clientsError } = await window.supabaseClient
+                    .from('profiles')
+                    .select('*, bespoke_projects(count)')
+                    .eq('role', 'user');
+
+                if (clientsError) throw clientsError;
+
                 const tbody = document.getElementById('requests-table-body');
                 if (!requests || requests.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">No new requests.</td></tr>';
@@ -332,6 +340,21 @@
                         </td>
                     </tr>
                 `).join('');
+
+                // 4. Populate Clients Table
+                const clientTbody = document.querySelector('#section-clients tbody');
+                if (clients && clients.length > 0) {
+                    clientTbody.innerHTML = clients.map(c => `
+                        <tr>
+                            <td>${c.full_name || 'Anonymous'}</td>
+                            <td>${c.company_name || 'N/A'}</td>
+                            <td>${c.bespoke_projects?.length || 0}</td>
+                            <td><span style="color: var(--accent-green)">Active</span></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    clientTbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 2rem;">No clients found.</td></tr>';
+                }
 
             } catch (err) {
                 console.error('Admin Load Error:', err);

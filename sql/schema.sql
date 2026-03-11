@@ -13,6 +13,8 @@ CREATE TABLE IF NOT EXISTS profiles (
     username TEXT UNIQUE,
     full_name TEXT,
     avatar_url TEXT,
+    company_name TEXT,
+    company_description TEXT,
     role user_role DEFAULT 'user',
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );

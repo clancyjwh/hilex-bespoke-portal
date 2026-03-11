@@ -33,14 +33,14 @@ async function handleLogin(email, password) {
 
         let bespokeRole = 'user'; // default
 
-        const { data: userRow } = await supabaseClient
-            .from('users')
-            .select('bespoke_role')
+        const { data: profileRow } = await supabaseClient
+            .from('profiles')
+            .select('role')
             .eq('id', data.user.id)
             .maybeSingle();
 
-        if (userRow && userRow.bespoke_role) {
-            bespokeRole = userRow.bespoke_role;
+        if (profileRow && profileRow.role) {
+            bespokeRole = profileRow.role;
         } else if (userEmail === 'clancyjhodgins@gmail.com') {
             bespokeRole = 'admin';
         }
@@ -92,17 +92,14 @@ async function handleSignup(email, password, firstName, lastName, companyName, c
             throw new Error('This email is already registered.');
         }
 
-        // 1. Insert into shared 'users' table with expanded company info
-        const { error: insertError } = await supabaseClient.from('users').insert({
+        // 1. Insert into 'profiles' table with expanded company info
+        const { error: insertError } = await supabaseClient.from('profiles').upsert({
             id: data.user.id,
-            email: email,
-            first_name: firstName,
-            last_name: lastName,
+            username: email,
             full_name: `${firstName} ${lastName}`,
             company_name: companyName,
             company_description: companyDescription,
-            role: 'user',
-            bespoke_role: 'user'
+            role: 'user'
         });
 
         if (insertError) {
@@ -226,15 +223,15 @@ async function processSSO() {
 
         const userId = sessionData.session.user.id;
 
-        // Look up bespoke_role from shared users table
-        const { data: userData, error: userError } = await supabaseClient
-            .from('users')
-            .select('bespoke_role')
+        // Look up role from shared profiles table
+        const { data: profileData, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('role')
             .eq('id', userId)
             .single();
 
-        if (userError || !userData) {
-            console.warn('No bespoke_role found for user, defaulting to user dashboard:', userError);
+        if (profileError || !profileData) {
+            console.warn('No profile role found for user, defaulting to user dashboard:', profileError);
             window.location.href = 'dashboard/user/index.html';
             return true;
         }
@@ -243,7 +240,7 @@ async function processSSO() {
         history.replaceState(null, '', window.location.pathname + window.location.search);
 
         setTimeout(() => {
-            if (userData.bespoke_role === 'admin') {
+            if (profileData.role === 'admin') {
                 window.location.href = 'dashboard/admin/index.html';
             } else {
                 window.location.href = 'dashboard/user/index.html';
